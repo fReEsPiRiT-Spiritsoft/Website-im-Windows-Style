@@ -13,7 +13,6 @@ function renderTaskbar() {
   // Startmenü erstellen
   let startMenu = null;
   bar.querySelector('.start-button').onclick = (e) => {
-    // Menü toggeln
     if (startMenu && startMenu.parentNode) {
       startMenu.remove();
       startMenu = null;
@@ -36,27 +35,28 @@ function renderTaskbar() {
         const id = item.getAttribute('data-id');
         const icon = icons.find(i => i.id == id);
         if (icon) openWindow(icon.id, icon.name);
-        startMenu.remove();
-        startMenu = null;
+        closeMenu();
       };
     });
-    // Neustart-Gag
     startMenu.querySelector('.restart-btn').onclick = () => {
       startMenu.innerHTML = "<div style='padding:30px;text-align:center;'>🔄 Neustart...<br><small>(Hier könnte eine Animation sein)</small></div>";
       setTimeout(() => location.reload(), 1200);
     };
-    // Menü anzeigen
     bar.appendChild(startMenu);
 
-    // Klick außerhalb schließt Menü
-    setTimeout(() => {
-      document.addEventListener('mousedown', function handler(ev) {
-        if (!startMenu.contains(ev.target) && ev.target !== bar.querySelector('.start-button')) {
-          startMenu.remove();
-          startMenu = null;
-          document.removeEventListener('mousedown', handler);
-        }
-      });
-    }, 10);
+    const startBtn = bar.querySelector('.start-button');
+    function outsideHandler(ev) {
+      if (!startMenu) { document.removeEventListener('mousedown', outsideHandler); return; }
+      if (startMenu.contains(ev.target) || ev.target === startBtn) return;
+      closeMenu();
+    }
+    document.addEventListener('mousedown', outsideHandler);
+
+    function closeMenu() {
+      if (!startMenu) return;
+      startMenu.remove();
+      startMenu = null;
+      document.removeEventListener('mousedown', outsideHandler);
+    }
   };
 }
