@@ -1,5 +1,3 @@
-
-// Konfiguration der Desktop-Icons
 const icons = [
   {
     id: 1,
@@ -32,29 +30,27 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.VFS) {
     const tree = VFS.load();
     VFS.syncPrograms(tree, icons);
-    // Explorer-Fenster aktualisieren falls schon offen
+  VFS.ensureInfoFile(tree);
     if (typeof refreshExplorerWindows === 'function') refreshExplorerWindows();
   }
 });
 
-// Hilfsfunktionen
 function $(sel, parent = document) { return parent.querySelector(sel); }
+
 function $all(sel, parent = document) { return parent.querySelectorAll(sel); }
 
-// Taskbar-Uhr aktualisieren
 function updateClock() {
   const el = $('.taskbar-time');
   if (el) el.textContent = new Date().toLocaleTimeString();
 }
 
-// Fenster verschiebbar machen
 function makeDraggable(win, titleBar) {
   let isDragging = false;
   let offsetX = 0, offsetY = 0;
   let longPressTimer = null;
   let startPX = 0, startPY = 0;
-  const LONG_PRESS_MS = 420;   // Dauer fürs Gedrückthalten
-  const MOVE_TOL = 8;          // Toleranz bevor Long-Press abbricht
+  const LONG_PRESS_MS = 420; 
+  const MOVE_TOL = 8; 
   titleBar.style.touchAction = "none";
 
   function startDrag(x, y) {
@@ -81,7 +77,6 @@ function makeDraggable(win, titleBar) {
       longPressTimer = null;
     }
   }
-
   titleBar.addEventListener('pointerdown', e => {
     if (e.pointerType === 'touch') {
       startPX = e.clientX;
@@ -148,7 +143,6 @@ function makeScaleAble(win) {
   document.addEventListener('pointercancel', end);
 }
 
-// Fenster-Content je nach App
 function getWindowContent(appName, explorerPath = "") {
   if (appName === "Explorer") return `<b>Explorer</b><br>${renderExplorerView(explorerPath || "C:/")}`;
   if (appName === "Editor")   return renderEditorView();
@@ -158,12 +152,11 @@ function getWindowContent(appName, explorerPath = "") {
   return "Noch keine App!";
 }
 
-// Fenster öffnen
 function openWindow(appId, appName, explorerPath = "") {
   const win = document.createElement('div');
   win.className = 'window';
   win.dataset.winid = appId;
-  win.dataset.app = appName; // wichtig für Refresh
+  win.dataset.app = appName; 
   win.innerHTML = `
     <div class="window-title">
       ${appName}
@@ -175,9 +168,7 @@ function openWindow(appId, appName, explorerPath = "") {
   makeScaleAble(win);
   $('#root').appendChild(win);
   window.openCount++;
-
   win.querySelector('.window-close-btn').onclick = () => win.remove();
-
   switch (appName) {
     case "Explorer": initExplorer(win, explorerPath); break;
     case "Editor":   initEditor(win); break;
@@ -188,23 +179,63 @@ function openWindow(appId, appName, explorerPath = "") {
   return win;
 }
 
-// Desktop Icons rendern
 function renderIcons() {
+  // Vorhandenes Icon-Container entfernen
+  const old = document.querySelector('.desktop-icons');
+  if (old) old.remove();
+
   const container = document.createElement('div');
-  container.className = "desktop-icons";
-  icons.forEach(icon => {
+  container.className = 'desktop-icons';
+
+  // 1) Feste App-Icons
+  icons.forEach(app => {
     const el = document.createElement('div');
-    el.className = "desktop-icon";
-    el.innerHTML = `<div class="icon-img">${icon.icon}</div><div class="icon-title">${icon.name}</div>`;
-    el.ondblclick = () => openWindow(icon.id, icon.name);
+    el.className = 'desktop-icon';
+    el.innerHTML = `<div class="icon-img">${app.icon}</div><div class="icon-title">${app.name}</div>`;
+    el.ondblclick = () => openWindow(app.id, app.name);
     container.appendChild(el);
   });
-  $('#root').appendChild(container);
+
+  // 2) Dateien aus C:/Desktop
+  try {
+    if (window.VFS) {
+      const tree = VFS.load();
+      VFS.ensureInfoFile && VFS.ensureInfoFile(tree); // INFO.txt sicherstellen
+      const list = VFS.list(tree, 'C:/Desktop')
+        .filter(e => e.type === 'file');
+
+      list.forEach(f => {
+        const el = document.createElement('div');
+        el.className = 'desktop-icon';
+        const icon = f.name.toLowerCase().endsWith('.txt') ? '📄'
+                   : f.name.toLowerCase().endsWith('.js')  ? '🧩'
+                   : '📄';
+        el.innerHTML = `<div class="icon-img">${icon}</div><div class="icon-title">${f.name}</div>`;
+        el.ondblclick = () => {
+          const full = 'C:/Desktop/' + f.name;
+          const data = VFS.readFile(tree, full) || '';
+          openEditorWithContent(full, data);
+        };
+        container.appendChild(el);
+      });
+    }
+  } catch(e) {
+    console.warn('Desktop-Dateien Fehler:', e);
+  }
+
+  document.getElementById('root').appendChild(container);
 }
 
-// Initialisierung
+// Beim Start aufrufen
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.VFS) {
+    const tree = VFS.load();
+    VFS.ensureInfoFile && VFS.ensureInfoFile(tree);
+  }
+  renderIcons();
+});
+
 window.zCounter = 10;
 window.openCount = 0;
-$('#root').innerHTML = ""; // Clean Up
+$('#root').innerHTML = "";
 renderIcons();
-

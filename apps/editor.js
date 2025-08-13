@@ -99,6 +99,7 @@ function initEditor(win) {
 
   function updateLabel() {
     nameLbl.textContent = win.dataset.filePath || '(neu)';
+    renderIcons();
   }
 
   function performSave(path) {
@@ -111,31 +112,24 @@ function initEditor(win) {
       updateLabel();
       refreshExplorerWindows && refreshExplorerWindows();
       showInfo("Gespeichert", {type:'success'});
+      // renderIcons();
     }
-  }
-
-  function requestPathAndSave() {
-    showFilenameDialog(win, {
-      title: "Dateiname (Speicherort: C:/Dokumente)",
-      value: "",
-      onOk: (fname) => {
-        fname = ensureTextExtension(fname);
-        const base = "C:/Dokumente/";
-        performSave(base + fname);
-      }
-    });
   }
 
   function saveFile() {
-    let filePath = win.dataset.filePath;
-    if (!filePath || !filePath.includes(':/')) {
-      requestPathAndSave();
+    const current = win.dataset.filePath;
+    if (!current) {
+      showSaveDialog(win, {
+        initialPath: "C:/Dokumente/",
+        defaultName: "",
+        onSave: performSave
+      });
       return;
     }
-    performSave(filePath);
+    performSave(current);
   }
 
-function deleteFile() {
+  function deleteFile() {
     const path = win.dataset.filePath;
     if (!path) {
       showInfo("Keine Datei zu löschen", {type:'warn'});
@@ -147,13 +141,13 @@ function deleteFile() {
         showInfo("Fehler: " + res.error, {type:'error'});
         return;
       }
-      // Editor-Status zurücksetzen
       win.dataset.filePath = "";
       ta.value = "";
       updateLabel();
       refreshExplorerWindows && refreshExplorerWindows();
       refreshTrashWindows && refreshTrashWindows();
       showInfo("In Papierkorb verschoben: " + res.name, {type:'success'});
+      // renderIcons();
     });
   }
 
@@ -207,4 +201,132 @@ function vfsMoveFileToTrash(fullPath) {
   delete parent.children[fname];
   VFS.save(tree);
   return {ok:true, name:fname};
+}
+
+function showSaveDialog(win, {
+  title = "Speichern unter",
+  initialPath = "C:/Dokumente/",
+  defaultName = "",
+  onSave,
+  onCancel
+} = {}) {
+  if (win.querySelector('.editor-save-dialog')) return;
+  let currentPath = VFS.normalize(initialPath);
+  if (!currentPath.endsWith('/')) currentPath += '/';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'editor-save-dialog';
+  wrap.innerHTML = `
+    <div class="editor-save-box">
+      <div class="editor-save-head">
+        <div class="editor-save-title">${title}</div>
+        <button class="editor-save-close" title="Schließen">✕</button>
+      </div>
+      <div class="editor-save-path"></div>
+      <div class="editor-save-browser">
+        <div class="editor-save-folders"></div>
+        <div class="editor-save-side">
+          <label class="editor-save-label">Dateiname:</label>
+          <input type="text" class="editor-save-fname" value="${defaultName.replace(/"/g,'&quot;')}" placeholder="z.B. notizen.txt">
+          <div class="editor-save-actions">
+            <button class="editor-save-cancel">Abbrechen</button>
+            <button class="editor-save-ok">Speichern</button>
+          </div>
+          <div class="editor-save-hint">Ordner doppelklicken zum Öffnen • „..“ = hoch</div>
+        </div>
+      </div>
+    </div>
+  `;
+  win.appendChild(wrap);
+
+  const elPath   = wrap.querySelector('.editor-save-path');
+  const elFolders= wrap.querySelector('.editor-save-folders');
+  const inpName  = wrap.querySelector('.editor-save-fname');
+
+  function close(doCancel=false) {
+    wrap.classList.add('closing');
+    setTimeout(()=>wrap.remove(),180);
+    if (doCancel) onCancel && onCancel();
+  }
+
+  wrap.querySelector('.editor-save-close').onclick =
+  wrap.querySelector('.editor-save-cancel').onclick = () => close(true);
+
+  wrap.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.stopPropagation(); close(true); }
+  });
+
+  function renderFolderList() {
+    elPath.textContent = currentPath;
+    const tree = VFS.load();
+    const list = VFS.list(tree, currentPath).filter(e=>e.type==='dir');
+    let html = `<div class="editor-save-folder-row" data-nav="..">[..]</div>`;
+    list.forEach(f=>{
+      html += `<div class="editor-save-folder-row" data-nav="${f.name}">📁 ${f.name}</div>`;
+    });
+    elFolders.innerHTML = html;
+    elFolders.querySelectorAll('.editor-save-folder-row').forEach(row=>{
+      row.ondblclick = () => {
+        const nav = row.getAttribute('data-nav');
+        if (nav === '..') goUp();
+        else enter(nav);
+      };
+      row.onclick = () => {
+        elFolders.querySelectorAll('.editor-save-folder-row.active').forEach(a=>a.classList.remove('active'));
+        row.classList.add('active');
+      };
+    });
+  }
+
+  function goUp() {
+    if (currentPath === 'C:/') return;
+    const parts = currentPath.replace(/\\/g,'/').split('/').filter(Boolean);
+    // parts: ["C:", "Ordner", ...]
+    parts.pop(); // entfernt Leer wegen trailing slash
+    parts.pop(); // entfernt aktuellen Ordner
+    if (parts.length === 1) {
+      currentPath = 'C:/';
+    } else {
+      currentPath = parts.join('/') + '/';
+    }
+    renderFolderList();
+  }
+
+  function enter(name) {
+    currentPath += (name + '/');
+    currentPath = VFS.normalize(currentPath);
+    if (!currentPath.endsWith('/')) currentPath += '/';
+    renderFolderList();
+  }
+
+  function submit() {
+    let fname = inpName.value.trim();
+    if (!fname) {
+      inpName.classList.add('shake');
+      setTimeout(()=>inpName.classList.remove('shake'),400);
+      return;
+    }
+    fname = ensureTextExtension(fname);
+    const fullPath = currentPath + fname;
+    // Existiert?
+    const node = VFS.getNode(VFS.load(), fullPath);
+    const doSave = () => {
+      onSave && onSave(fullPath);
+      close(false);
+    };
+    if (node && node.type === 'file') {
+      // Überschreiben bestätigen
+      showConfirm(win, `Datei '${fullPath}' überschreiben?`, doSave);
+    } else {
+      doSave();
+    }
+  }
+
+  wrap.querySelector('.editor-save-ok').onclick = submit;
+  inpName.addEventListener('keydown', e=>{
+    if (e.key === 'Enter') submit();
+  });
+
+  renderFolderList();
+  setTimeout(()=>inpName.focus(),30);
 }

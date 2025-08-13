@@ -11,6 +11,7 @@ const FS_DEFAULT = {
     'C:': {
       type: 'dir',
       children: {
+  'Desktop': { type:'dir', children:{} },
         'Dokumente': { type:'dir', children:{} },
         'Bilder':     { type:'dir', children:{} },
         'Programme': {
@@ -39,13 +40,17 @@ function fs_load() {
     if (!raw) {
       const tree = structuredClone(FS_DEFAULT);
       fs_save(tree);
-      fs_migrateLegacyTextFiles(tree); // Migration alter textfiles/
+      fs_migrateLegacyTextFiles(tree);
+      fs_postLoadMigrations(tree);
       return tree;
     }
-    return JSON.parse(raw);
+    const tree = JSON.parse(raw);
+    fs_postLoadMigrations(tree);
+    return tree;
   } catch {
     const tree = structuredClone(FS_DEFAULT);
     fs_save(tree);
+    fs_postLoadMigrations(tree);
     return tree;
   }
 }
@@ -176,7 +181,6 @@ function fs_readFile(tree, filePath) {
   return node.content;
 }
 
-// Programme-Ordner sicherstellen
 function fs_ensureProgrammeRoot(tree) {
   const c = tree.drives['C:'];
   if (!c.children['Programme']) {
@@ -186,7 +190,6 @@ function fs_ensureProgrammeRoot(tree) {
   return false;
 }
 
-// Sync: Desktop-Icons -> Programme-Struktur
 function fs_syncPrograms(tree, programList) {
   if (!Array.isArray(programList)) return {created:0, updated:0};
   let changed = false;
@@ -195,14 +198,13 @@ function fs_syncPrograms(tree, programList) {
   let created = 0;
   programList.forEach(p => {
     if (!p || !p.name) return;
-    const folderName = p.name; // z.B. "Editor"
+    const folderName = p.name; 
     if (!progRoot.children[folderName]) {
       progRoot.children[folderName] = { type:'dir', children:{} };
       changed = true;
     }
     const folder = progRoot.children[folderName];
     if (folder.type !== 'dir') return;
-    // Launcher-Datei
     if (!folder.children['launcher.app']) {
       folder.children['launcher.app'] = {
         type:'file',
@@ -213,7 +215,6 @@ function fs_syncPrograms(tree, programList) {
       created++;
       changed = true;
     }
-    // Info-Datei optional
     if (!folder.children['info.txt']) {
       folder.children['info.txt'] = {
         type:'file',
@@ -227,6 +228,108 @@ function fs_syncPrograms(tree, programList) {
   return {created, updated:0};
 }
 
+function fs_ensureInfoFile(tree) {
+  fs_ensureFolder(tree, 'C:/Desktop');
+  const desktop = fs_getNode(tree, 'C:/Desktop');
+  if (!desktop || desktop.type !== 'dir') return false;
+  if (!desktop.children['INFO.txt']) {
+    desktop.children['INFO.txt'] = {
+      type:'file',
+      content: `INFO / KURZANLEITUNG\n\nWillkommen!\nDies ist deine Mini-Windows-Umgebung.\nDiese Datei liegt auf dem virtuellen Desktop (C:/Desktop).\n- Explorer: Dateien ansehen\n- Editor: Texte bearbeiten\n- Terminal: Basis-Kommandos\n- Neustart: LocalStorage Reset\n\nViel Spaß!\n`,
+      modified: fs_now()
+    };
+    fs_save(tree);
+    return true;
+  }
+  return false;
+}
+function fs_ensureFolder(tree, path) {
+  path = fs_normalizePath(path);
+  const { drive, parts } = fs_split(path);
+  if (!drive) return false;
+  let cur = tree.drives[drive];
+  if (!cur) return false;
+  let changed = false;
+  for (const part of parts) {
+    if (!cur.children[part]) {
+      cur.children[part] = { type:'dir', children:{} };
+      changed = true;
+    }
+    cur = cur.children[part];
+    if (cur.type !== 'dir') return false;
+  }
+  if (changed) fs_save(tree);
+  return true;
+}
+
+function fs_postLoadMigrations(tree) {
+  let changed = false;
+
+  if (!fs_getNode(tree, 'C:/Desktop')) {
+    fs_ensureFolder(tree, 'C:/Desktop');
+    changed = true;
+  }
+  if (!fs_getNode(tree, 'C:/Programme')) {
+    fs_ensureFolder(tree, 'C:/Programme');
+    changed = true;
+  }
+
+  const desktop = fs_getNode(tree, 'C:/Desktop');
+  if (desktop && desktop.type === 'dir') {
+    const needCreate = !desktop.children['INFO.txt'];
+    const placeholderMarker = '__INFO_PLACEHOLDER__';
+    const existing = desktop.children['INFO.txt'];
+    if (needCreate) {
+      desktop.children['INFO.txt'] = {
+        type:'file',
+        content: `INFO.txt wird geladen...\n(Platzhalter – wird automatisch ersetzt sobald info.txt verfügbar ist)\n${placeholderMarker}`,
+        modified: fs_now()
+      };
+      changed = true;
+      fetch('info.txt', { cache:'no-cache' })
+        .then(r => r.ok ? r.text() : null)
+        .then(txt => {
+          if (!txt) return;
+          const tree2 = fs_load();
+            const desk2 = fs_getNode(tree2, 'C:/Desktop');
+            if (!desk2 || desk2.type !== 'dir') return;
+            const infoNode = desk2.children['INFO.txt'];
+            if (!infoNode || infoNode.type !== 'file') return;
+            if (infoNode.content.includes(placeholderMarker)) {
+              infoNode.content = txt;
+              infoNode.modified = fs_now();
+              fs_save(tree2);
+            }
+        })
+        .catch(()=>{ /* stiller Fallback */ });
+    } else if (existing.type === 'file' &&
+               existing.content.includes('__INFO_PLACEHOLDER__')) {
+      fetch('info.txt', { cache:'no-cache' })
+        .then(r => r.ok ? r.text() : null)
+        .then(txt => {
+          if (!txt) return;
+          const tree2 = fs_load();
+          const desk2 = fs_getNode(tree2, 'C:/Desktop');
+          if (!desk2) return;
+          const infoNode = desk2.children['INFO.txt'];
+          if (!infoNode || infoNode.type !== 'file') return;
+          if (infoNode.content.includes('__INFO_PLACEHOLDER__')) {
+            infoNode.content = txt;
+            infoNode.modified = fs_now();
+            fs_save(tree2);
+          }
+        })
+        .catch(()=>{});
+    }
+  }
+
+  if (changed) fs_save(tree);
+}
+
+function fs_ensureInfoFile() {
+  return Promise.resolve(false);
+}
+
 window.VFS = {
   load: fs_load,
   save: fs_save,
@@ -236,5 +339,6 @@ window.VFS = {
   readFile: fs_readFile,
   getNode: fs_getNode,
   normalize: fs_normalizePath,
-  syncPrograms: fs_syncPrograms
+  syncPrograms: fs_syncPrograms,
+  ensureInfoFile: fs_ensureInfoFile
 };

@@ -1,0 +1,85 @@
+================================================== WINDOWS-WEBSITE – VIRTUELLE DESKTOP UMGEBUNG
+Inhalt
+
+Überblick
+Apps & Funktionen
+Virtuelles Dateisystem (VFS)
+Explorer Bedienung
+Editor Nutzung
+Papierkorb / Löschen
+Terminal Befehls-Referenz (Kurz)
+Browser Hinweise
+Neustart / Reset / Boot-Sequenz
+Personalisierungsideen (Ausblick)
+Tastenkürzel & Tipps
+Bekannte Grenzen
+ÜBERBLICK
+Diese Website simuliert einen einfachen Windows‑ähnlichen Desktop:
+
+Mehrere Fenster (Explorer, Editor, Browser, Terminal, Trash …)
+Drag / Resize von Fenstern (auch Touch – Long Press für Move)
+Virtuelles Dateisystem in localStorage (persistente Ordner & Dateien)
+Papierkorb-Mechanik (Restore möglich)
+Soft-Neustart mit „Boot“-Animation & Speicher-Löschung
+Alle Daten leben ausschließlich im Browser-Speicher (localStorage). Kein Upload an einen Server – alles lokal & flüchtig bei Browser-Clear.
+
+APPS & FUNKTIONEN
+Explorer Durchsuchen der virtuellen Laufwerksstruktur (C:/…) Editor Erstellen & Bearbeiten von Text-/Code-Dateien Browser Eingebetteter (eingeschränkter) Frame für externe Seiten Terminal Einfache Shell: Hilfe, Dateien listen, öffnen, löschen etc. Trash Anzeige & Wiederherstellung gelöschter Dateien Restart Löscht Speicher + Boot-Sequenz + Neuaufbau
+
+VIRTUELLES DATEISYSTEM (VFS)
+Struktur (Basis): C:/ Dokumente/ -> Standard-Speicherort für neue Dateien Bilder/ -> (Platzhalter – erweiterbar) Programme/ Editor/ editor.js -> Beispiel / Launcher‐Material (optional) Desktop/ -> Eigene Desktop-Dateien, falls eingebaut
+
+Jeder Eintrag: Verzeichnis: { type:'dir', children:{...} } Datei: { type:'file', content:'...', modified:<timestamp> }
+
+Migration: Ältere textfiles/<name> Einträge (Legacy) werden bei Erststart in C:/Dokumente übernommen (falls implementiert).
+
+EXPLORER BEDIENUNG
+Doppelklick Ordner: Betreten Doppelklick Datei: Editor öffnen (launcher.app startet Programm) Zurück (.. oder Pfeil): Eine Ebene höher Neuer Ordner: Button 📁+ (Name eingeben) (Geplant möglich) Kontextmenü, Umbenennen, Drag & Drop, Suche
+
+EDITOR NUTZUNG
+Erstes Speichern fragt Dateinamen (automatisches .txt Suffix)
+Folge-Speichern überschreibt still
+Löschen verschiebt Datei → Papierkorb (nicht sofort weg)
+Fenster-Titel zeigt aktuellen Pfad
+(Geplant) Tabs, Syntax-Highlight, Suchen / Ersetzen
+PAPIERKORB / LÖSCHEN
+Löschen im Editor: Move → trashfiles/<Dateiname> Trash-Fenster: Wiederherstellen: Datei zurück nach textfiles/ bzw. VFS Endgültig löschen: Entfernt Eintrag aus trashfiles/ (Erweiterungsidee) Zeitstempel + Auto-Leerung
+
+TERMINAL KURZREFERENZ
+help Befehlsübersicht clear / cls Bildschirm leeren ls Dateien (aktive) auflisten trash Papierkorb-Dateien cat <datei> Inhalt anzeigen edit <datei> Datei im Editor (neu oder existierend) rm <datei> In Papierkorb verschieben restore <datei> Aus Papierkorb holen open explorer Explorer-Fenster öffnen open browser <url> Browser starten (optional URL) open terminal Neues Terminal echo <text> Ausgabe time / date Zeit / Datum whoami Nutzer @ Host version Terminal-Version mem Geschätzte localStorage-Nutzung history Bisherige Kommandos reload Seite neu laden (Hard Refresh Simulation)
+
+Navigation: Pfeil ↑ / ↓ Verlauf durchblättern Tab Autovervollständigung (Basis) Ctrl+L Schnell Clear (wie Shell)
+
+BROWSER HINWEISE
+Viele große Seiten blockieren iframe (X-Frame-Options / CSP)
+Blockierte Seiten → Overlay + „Extern öffnen“
+Favoriten-Menü (☰) mit definierter Liste
+Sandbox gelockert für Popups & Navigation (konfigurierbar)
+NEUSTART / RESET / BOOT
+Klick „Neustarten“ (Start-Menü): 1. Blur + Bestätigungsdialog (+ Info) 2. BIOS-Phase (Blinkcursor) 3. OS-Phase mit Spinner + Logo 4. Speicher (localStorage) wird geleert 5. Desktop/FS wird initial neu aufgebaut 6. Kurzer Startsound
+
+Achtung: Kein Undo – alles weg.
+
+PERSONALISIERUNG (AUSBLICK)
+Themes (Dark / High Contrast / Accent Color)
+Hintergrund dynamisch (Tageszeit)
+Icon-Größe / Raster
+Notification-Center
+Mehrbenutzer / Login-Screen
+Snap Layouts / Virtuelle Desktops
+TASTENKÜRZEL & TIPPS
+Explorer (geplant): F2 Umbenennen (zukünftig) DEL Löschen (Move to Trash) Leertaste QuickLook Vorschau
+
+Editor (geplant): Ctrl+S Speichern Ctrl+F Suchen Ctrl+Shift+F Global Suchen
+
+Terminal: ↑ / ↓ Verlauf Tab Auto-Complete Ctrl+L Clear
+
+Allgemein: Fenster ziehen: Titelleiste (Touch: Long Press) Resize: Ecke unten rechts
+
+BEKANNTE GRENZEN
+Speicherlimit: localStorage (~5 MB) → große Dateien vermeiden
+Kein echter Netzwerk-/Dateizugriff außerhalb Browser Sandbox
+iframe Restriktionen (Sicherheitsheader externer Seiten)
+Keine echte Prozessverwaltung (nur simuliert)
+Keine Benutzerrechte / ACLs (noch)
+================================================== ENDE – VIEL SPAß!
