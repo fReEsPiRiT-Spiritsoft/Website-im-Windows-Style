@@ -1,0 +1,269 @@
+/* Textarea im Editor */
+#editor-text {
+  font-family: 'Consolas', 'Segoe UI', monospace;
+  font-size: 15px;
+  border: 1px solid #b0b0b0;
+  border-radius: 4px;
+  padding: 6px;
+  background: #f9f9f9;
+  color: #222;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.editor-toolbar {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:8px 10px;
+  background:linear-gradient(#f5f7fa,#e1e6eb);
+  border:1px solid #c6cdd4;
+  border-radius:6px;
+  margin-bottom:8px;
+  font-size:14px;
+  box-shadow:0 1px 2px #0001 inset, 0 1px 3px #0002;
+}
+
+.editor-toolbar .editor-filename-label {
+  margin-left:auto;
+  font-style:italic;
+  color:#444;
+  font-size:13px;
+  padding:2px 6px;
+  background:#ffffffcc;
+  border:1px solid #d0d6dc;
+  border-radius:4px;
+}
+
+/* Grund-Button-Stil */
+.editor-toolbar .btn {
+  position:relative;
+  border:1px solid transparent;
+  border-radius:5px;
+  padding:6px 14px 6px 12px;
+  font-size:13px;
+  font-weight:600;
+  line-height:1.2;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  background:#ddd;
+  color:#222;
+  transition: background .18s, box-shadow .18s, transform .12s, border-color .18s;
+  user-select:none;
+}
+
+.editor-toolbar .btn:focus-visible {
+  outline:2px solid #1976d2;
+  outline-offset:2px;
+}
+
+.editor-toolbar .btn:active {
+  transform:translateY(1px);
+}
+
+/* Speichern */
+.editor-toolbar .btn-primary {
+  background:#1976d2;
+  border-color:#1665b4;
+  color:#fff;
+  box-shadow:0 2px 4px #0003;
+}
+.editor-toolbar .btn-primary:hover {
+  background:#155fa8;
+}
+.editor-toolbar .btn-primary:active {
+  background:#114f8c;
+}
+
+/* Löschen (Danger) */
+.editor-toolbar .btn-danger {
+  background:linear-gradient(#ff5f52,#e6332a);
+  border-color:#c72720;
+  color:#fff;
+  box-shadow:0 2px 6px #0004, 0 0 0 0 rgba(230,60,45,0.6);
+  overflow:hidden;
+}
+
+.editor-toolbar .btn-danger:hover {
+  background:linear-gradient(#ff776b,#e6332a);
+  box-shadow:0 3px 8px #0005, 0 0 0 3px rgba(255,90,80,0.20);
+}
+
+.editor-toolbar .btn-danger:active {
+  background:linear-gradient(#e84e43,#cc271f);
+  transform:translateY(1px);
+}
+
+/* Pulsierender Warnring beim Fokussieren / kurz nach Hover */
+.editor-toolbar .btn-danger::after {
+  content:"";
+  position:absolute;
+  inset:-4px;
+  border-radius:8px;
+  background:radial-gradient(circle at center, rgba(255,120,110,.35), transparent 70%);
+  opacity:0;
+  transform:scale(.6);
+  transition:opacity .35s, transform .4s;
+  pointer-events:none;
+}
+
+.editor-toolbar .btn-danger:hover::after,
+.editor-toolbar .btn-danger:focus-visible::after {
+  opacity:1;
+  transform:scale(1);
+}
+
+/* „Bewaffnet“-Effekt bei langem Pressen (Touch) */
+.editor-toolbar .btn-danger.is-armed {
+  animation:dangerPulse 1.2s infinite;
+  filter:brightness(1.05) saturate(1.15);
+}
+
+@keyframes dangerPulse {
+  0% { box-shadow:0 0 0 0 rgba(230,60,45,0.55); }
+  70% { box-shadow:0 0 0 10px rgba(230,60,45,0); }
+  100% { box-shadow:0 0 0 0 rgba(230,60,45,0); }
+}
+
+/* Textarea etwas neutraler */
+.editor-textarea {
+  border:1px solid #b9c2c9;
+  border-radius:6px;
+  padding:10px 12px;
+  font-family:Consolas, 'Segoe UI', monospace;
+  font-size:14px;
+  background:#fdfdfd;
+  box-shadow:0 1px 2px #0001 inset;
+  outline:none;
+  transition:border-color .18s, box-shadow .18s;
+}
+.editor-textarea:focus {
+  border-color:#1976d2;
+  box-shadow:0 0 0 2px #1976d233;
+}
+
+/* Confirm Modal (falls noch nicht definiert) */
+.editor-confirm {
+  position:absolute;
+  inset:0;
+  background:#0007;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+}
+.editor-confirm-box {
+  background:#fff;
+  padding:18px 20px 16px;
+  border-radius:10px;
+  min-width:260px;
+  box-shadow:0 8px 24px #0005;
+  animation:popIn .25s;
+  font-size:14px;
+}
+@keyframes popIn {
+  0% { transform:scale(.9); opacity:0; }
+  100% { transform:scale(1); opacity:1; }
+}
+.editor-confirm-actions {
+  margin-top:16px;
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+.editor-confirm-actions button {
+  background:#1976d2;
+  border:none;
+  color:#fff;
+  padding:6px 14px;
+  border-radius:5px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:600;
+  transition:background .18s;
+}
+.editor-confirm-actions button:hover {
+  background:#145da6;
+}
+
+/* Filename-Eingabe (Prompt) */
+.editor-prompt {
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:120;
+  animation:fadeIn .18s;
+  backdrop-filter:blur(2px);
+}
+.editor-prompt.closing { animation:fadeOut .18s forwards; }
+.editor-prompt-box {
+  background:#fff;
+  border:1px solid #cfd6de;
+  border-radius:12px;
+  padding:20px 22px 18px;
+  width:300px;
+  max-width:90%;
+  box-shadow:0 8px 28px -4px #0005;
+  font-size:14px;
+  animation:popInfo .24s;
+  position:relative;
+}
+.editor-prompt-title {
+  font-weight:600;
+  margin-bottom:12px;
+  color:#22313f;
+}
+.editor-prompt-input {
+  width:100%;
+  padding:8px 10px;
+  border:1px solid #b6c1c9;
+  border-radius:6px;
+  font-size:14px;
+  font-family:'Segoe UI',sans-serif;
+  background:#fdfdfd;
+  outline:none;
+  transition:border-color .18s, box-shadow .18s;
+  margin-bottom:16px;
+}
+.editor-prompt-input:focus {
+  border-color:#1976d2;
+  box-shadow:0 0 0 2px #1976d233;
+}
+.editor-prompt-actions {
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+.editor-prompt-actions button {
+  background:#1976d2;
+  border:none;
+  color:#fff;
+  padding:6px 14px;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:background .18s, transform .12s;
+}
+.editor-prompt-actions button:hover { background:#155fa8; }
+.editor-prompt-actions button:active { transform:translateY(1px); }
+.editor-prompt-actions .editor-prompt-cancel {
+  background:#69737c;
+}
+.editor-prompt-actions .editor-prompt-cancel:hover {
+  background:#565f66;
+}
+.editor-prompt-input.shake {
+  animation:shake .38s;
+  border-color:#c62828;
+}
+@keyframes shake {
+  0%,100% { transform:translateX(0); }
+  20%,60% { transform:translateX(-6px); }
+  40%,80% { transform:translateX(6px); }
+}

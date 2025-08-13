@@ -1,0 +1,188 @@
+/* Browser Favoriten */
+.browser-bar {
+  position: relative;
+}
+.browser-fav-btn {
+  background:#2f3942;
+  color:#fff;
+  border:1px solid #1e262c;
+  padding:6px 10px;
+  border-radius:5px;
+  cursor:pointer;
+  font-weight:600;
+  transition:background .18s, transform .12s;
+}
+.browser-fav-btn:hover { background:#3d4852; }
+.browser-fav-btn:active { transform:translateY(1px); }
+
+.browser-fav-panel {
+  position:absolute;
+  top:100%;
+  left:0;
+  width:260px;
+  max-height:360px;
+  background:#ffffff;
+  border:1px solid #cfd6de;
+  border-radius:10px;
+  padding:10px 10px 12px;
+  box-shadow:0 10px 26px -6px #0005;
+  display:none;
+  flex-direction:column;
+  gap:8px;
+  z-index:50;
+  animation:fadeIn .18s;
+}
+.browser-fav-panel.open { display:flex; }
+
+.fav-head {
+  font-weight:600;
+  font-size:14px;
+  padding-bottom:6px;
+  border-bottom:1px solid #e1e6ea;
+  margin-bottom:4px;
+  color:#22313f;
+}
+
+.fav-item {
+  padding:6px 8px 6px 10px;
+  background:#f3f6f9;
+  border:1px solid #d5dde3;
+  border-radius:6px;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  transition:background .18s, border-color .18s, box-shadow .18s;
+  font-size:12.5px;
+}
+.fav-item:hover {
+  background:#e6f1ff;
+  border-color:#1976d2;
+  box-shadow:0 2px 6px #1976d233;
+}
+.fav-title {
+  font-weight:600;
+  font-size:13px;
+  color:#1d2a34;
+}
+.fav-url {
+  font-family:Consolas, monospace;
+  color:#55626d;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Kleinere Icons auf ganz schmalen Screens */
+@media (max-width:520px) {
+  .browser-fav-panel {
+    width:80vw;
+    max-height:55vh;
+  }
+}
+/* Browser Layout */
+.browser-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-size: 13px;
+  background: #eef2f7;
+  border: 1px solid #d0d4da;
+  box-sizing: border-box;
+}
+.browser-bar {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px;
+  background: linear-gradient(#f7f9fb, #e3e7ec);
+  border-bottom: 1px solid #c1c7cf;
+}
+.browser-url {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #9aa6b3;
+  border-radius: 4px;
+  font-size: 13px;
+  background: #fff;
+}
+.browser-url:focus {
+  outline: 2px solid #1976d233;
+  border-color: #1976d2;
+}
+.browser-go {
+  padding: 6px 10px;
+  border: 1px solid #1976d2;
+  background: #1976d2;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.browser-go:hover {
+  background: #125ea9;
+}
+.browser-frame-wrap {
+  flex: 1;
+  position: relative;
+  background: #fff;
+  border-top: 1px solid #cfd5dc;
+}
+.browser-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+/* Sicherstellen dass window-content Browser voll ausnutzt */
+.window-content {
+  position: relative;
+  height: calc(92% - 0px);
+  overflow: hidden;
+}
+
+/* Pointer für Browser-Controls */
+.browser-url, .browser-go { cursor: pointer; }
+.browser-url { cursor: text; }
+
+/* ...existing code... */
+.browser-frame-wrap {
+  position: relative;
+}
+.browser-blocked-overlay {
+  position: absolute;
+  inset: 0;
+  background: #1d2b3aee;
+  color: #fff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  text-align: center;
+  z-index: 5;
+}
+.browser-blocked-overlay .blocked-msg button {
+  margin-top: 10px;
+  background:#1976d2;
+  border:none;
+  color:#fff;
+  padding:6px 14px;
+  border-radius:4px;
+  cursor:pointer;
+}
+.browser-blocked-overlay .blocked-msg button:hover {
+  background:#125ea9;
+}
+.browser-open-tab {
+  padding:6px 8px;
+  background:#e0e6ed;
+  border:1px solid #9aa6b3;
+  border-radius:4px;
+  cursor:pointer;
+}
+.browser-open-tab:hover {
+  background:#d1d9e2;
+}
