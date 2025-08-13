@@ -1,4 +1,11 @@
-================================================== WINDOWS-WEBSITE – VIRTUELLE DESKTOP UMGEBUNG
+==================== WINDOWS-WEBSITE – VIRTUELLE DESKTOP UMGEBUNG======================
+
+***** Bekannte BUGS *****
+
+Beim Handy öffnen sich die Programme nicht sofot,
+sie starten erst nachdem man die Info.txt geöffnet hat
+
+*************************
 Inhalt
 
 Überblick

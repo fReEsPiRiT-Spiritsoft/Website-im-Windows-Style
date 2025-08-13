@@ -1,8 +1,10 @@
 // ...existing code (falls oberhalb etwas steht)...
 const BROWSER_FAVORITES = [
-  { title: "FreeSpirit Info", url: "https://freespirit-info.de" },
+  { title: "Google Maps", url: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2500.0875266242915!2d8.702952439440807!3d51.199038857237305!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47bb9ab6d313a325%3A0xd36ddfa5d80e3257!2sMega%20D%C3%B6ner!5e0!3m2!1sde!2sde!4v1755083176974!5m2!1sde!2sde" },
   { title: "Wikipedia (DE)", url: "https://de.wikipedia.org" },
-  { title: "Patrick Schmidt", url: "https://patrick-schmidt.info" }
+  { title: "Patrick Schmidt", url: "https://patrick-schmidt.info" },
+  { title: "JS Lern video", url: "https://www.youtube.com/embed/eWLDAAMsD-c?si=WksVA3unp_6myIM8"},
+  { title: "Pokedex by Patrick, Schmidt", url: "https://www.patrick-schmidt.developerakademie.net/pokedex"}
 ];
 
 function initBrowser(win) {
