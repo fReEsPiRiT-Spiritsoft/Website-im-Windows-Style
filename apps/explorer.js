@@ -1,6 +1,3 @@
-const icon = e.name.endsWith('.app')
-  ? '🚀'
-  : (e.name.endsWith('.js') ? '🧩' : '📄');
 
 
 function initExplorer(win, path="C:/") {
@@ -160,21 +157,22 @@ function moveFileToTrash(fname) {
   localStorage.removeItem(key);
   return true;
 }
-el.ondblclick = () => {
-  const fname = el.getAttribute('data-fname');
-  const fullPath = (currentPath.endsWith('/') ? currentPath : currentPath + '/') + fname;
-  const tree = VFS.load();
-  const node = VFS.getNode(tree, fullPath);
-  if (fname === 'launcher.app' && node && node.type === 'file') {
-    try {
-      const meta = JSON.parse(node.content);
-      const iconObj = (window.icons || []).find(i => i.id == meta.appId);
-      if (iconObj) {
-        openWindow(iconObj.id, iconObj.name);
-        return;
-      }
-    } catch {}
-  }
-  const data = VFS.readFile(tree, fullPath) ?? '';
-  openEditorWithContent(fullPath, data);
-};
+
+// el.ondblclick = () => {
+//   const fname = el.getAttribute('data-fname');
+//   const fullPath = (currentPath.endsWith('/') ? currentPath : currentPath + '/') + fname;
+//   const tree = VFS.load();
+//   const node = VFS.getNode(tree, fullPath);
+//   if (fname === 'launcher.app' && node && node.type === 'file') {
+//     try {
+//       const meta = JSON.parse(node.content);
+//       const iconObj = (window.icons || []).find(i => i.id == meta.appId);
+//       if (iconObj) {
+//         openWindow(iconObj.id, iconObj.name);
+//         return;
+//       }
+//     } catch {}
+//   }
+//   const data = VFS.readFile(tree, fullPath) ?? '';
+//   openEditorWithContent(fullPath, data);
+// };

@@ -15,6 +15,9 @@ body {
   position: relative;
   overflow: hidden;
 }
+:root {
+  --taskbar-base-h: 48px;
+}
 
 .desktop-icons {
   display: flex;
@@ -294,28 +297,54 @@ body {
 }
 
 @media (max-width: 820px) {
-  .taskbar {
-    position: fixed;
-    height: 48px;
-    gap: 8px;
-    bottom: env(safe-area-inset-bottom, 0);
-    padding: 0 12px calc(env(safe-area-inset-bottom, 0));
-    background: #20252b;
-    z-index: 10000;
-    box-shadow: 0 -2px 6px #0006;
-  }
-
-  body,
-  #root {
-    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0));
-    box-sizing: border-box;
-    min-height: 100vh;
-  }
-
-  .window {
-    max-height: calc(100vh - 48px - env(safe-area-inset-bottom, 0) - 10px);
+  :root {
+    --taskbar-base-h: 48px; /* anpassen falls du 56px willst */
   }
 }
+
+/* Taskbar immer ganz unten; Safe-Area addieren (dynamisch: auf Desktop = 0) */
+.taskbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--taskbar-base-h) + env(safe-area-inset-bottom, 0));
+  padding: 0 12px env(safe-area-inset-bottom, 0);
+  box-sizing: border-box;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* (Belasse dein vorhandenes Styling / Farben hier) */
+}
+
+/* Platz unten für Fenster / Desktop freihalten */
+body,
+#root {
+  padding-bottom: calc(var(--taskbar-base-h) + env(safe-area-inset-bottom, 0));
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+/* Modernes dynamisches Viewport-Height (verhindert Sprung beim Ein-/Ausblenden der Browser-UI) */
+@supports (height: 100dvh) {
+  html, body, #root {
+    min-height: 100dvh;
+    height: 100dvh;
+  }
+}
+
+/* Fenster maximale Höhe (nicht hinter Taskbar laufen) */
+.window {
+  max-height: calc(100vh - (var(--taskbar-base-h) + env(safe-area-inset-bottom, 0)) - 20px);
+}
+
+@supports (height: 100dvh) {
+  .window {
+    max-height: calc(100dvh - (var(--taskbar-base-h) + env(safe-area-inset-bottom, 0)) - 20px);
+  }
+}
+
 
 /* Optional: sehr kleine Phones */
 @media (max-width: 480px) {
@@ -327,4 +356,45 @@ body {
     padding: 4px 12px;
     font-size: 14px;
   }
+}
+@media (max-width: 820px) {
+  .taskbar {
+    bottom: 0;
+    height: calc(48px + env(safe-area-inset-bottom, 0)) !important;
+    padding-bottom: env(safe-area-inset-bottom, 55) !important;
+  }
+  body,
+  #root {
+    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0));
+  }
+}
+
+@media (max-width: 780px), (orientation: portrait) {
+  .desktop-icons {
+    position: relative;
+    display: grid;
+    /* 3 Reihen (Zeilen) definieren, danach werden neue Spalten automatisch erzeugt */
+    grid-template-rows: repeat(4, max-content);
+    grid-auto-flow: column;          /* Fülle erst die Zeilen der ersten Spalte, dann nächste Spalte */
+    grid-auto-columns: 88px;          /* Breite einer Spalte (Icon-Breite + Puffer) */
+    gap: 16px 24px;                   /* vertikal / horizontal Abstand */
+    padding: 14px 10px 14px 14px;
+    height: calc(100vh - var(--taskbar-h, 48px) - 20px);
+    overflow-x: auto;                 /* Falls mehr Spalten entstehen */
+    overflow-y: hidden;
+    align-content: start;             /* Start oben halten */
+  }
+  .desktop-icon {
+    position: static !important;      /* Absolute Koordinaten deaktivieren */
+    left: auto !important;
+    top: auto !important;
+    margin: 0;
+  }
+  /* Optional: etwas kleinere Schrift / Icon für mehr Platz
+  .desktop-icon .icon-img {
+    font-size: 26px;
+  }
+  .desktop-icon {
+    width: 80px;
+  } */
 }
