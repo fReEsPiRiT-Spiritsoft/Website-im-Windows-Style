@@ -141,19 +141,12 @@ function makeScaleAble(win) {
 
 // Fenster-Content je nach App
 function getWindowContent(appName, explorerPath = "") {
-  if (appName === "Explorer") {
-    return `<b>Explorer</b><br>${renderExplorerView(explorerPath)}`;
-  } else if (appName === "Editor") {
-    return renderEditorView();
-  } else if (appName === "Browser") {
-    return renderBrowserView("https://patrick-schmidt.info");
-  } else if (appName === "Trash") {
-    return `<b>Papierkorb</b><br>${renderTrashView()}`;
-  } else if (appName === "Terminal") {
-    return renderTerminalView();
-  } else {
-    return "Noch keine App!";
-  }
+  if (appName === "Explorer") return `<b>Explorer</b><br>${renderExplorerView(explorerPath || "C:/")}`;
+  if (appName === "Editor")   return renderEditorView();
+  if (appName === "Browser")  return renderBrowserView("https://patrick-schmidt.info");
+  if (appName === "Trash")    return `<b>Papierkorb</b><br>${renderTrashView()}`;
+  if (appName === "Terminal") return renderTerminalView();
+  return "Noch keine App!";
 }
 
 // Fenster öffnen
@@ -181,6 +174,7 @@ function openWindow(appId, appName, explorerPath = "") {
     case "Editor":   initEditor(win); break;
     case "Browser":  initBrowser(win); break;
     case "Trash":    initTrash(win); break;
+    case "Terminal": initTerminal(win); break;
   }
   return win;
 }

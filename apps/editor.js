@@ -98,79 +98,55 @@ function initEditor(win) {
   const nameLbl = win.querySelector('.editor-filename-label');
 
   function updateLabel() {
-    nameLbl.textContent = win.dataset.filename ? win.dataset.filename : '(neue Datei)';
-    const titleEl = win.querySelector('.window-title');
-    if (titleEl && titleEl.firstChild && titleEl.firstChild.nodeType === Node.TEXT_NODE) {
-      const base = 'Editor';
-      titleEl.firstChild.textContent = win.dataset.filename ? (base + ' - ' + win.dataset.filename) : base;
+    nameLbl.textContent = win.dataset.filePath || '(neu)';
+  }
+
+  function performSave(path) {
+    const tree = VFS.load();
+    const res = VFS.writeFile(tree, path, ta.value);
+    if (!res.ok) {
+      showInfo("Fehler: " + res.error, {type:'error'});
+    } else {
+      win.dataset.filePath = path;
+      updateLabel();
+      refreshExplorerWindows && refreshExplorerWindows();
+      showInfo("Gespeichert", {type:'success'});
     }
   }
 
-  function performSave(fname) {
-    localStorage.setItem("textfiles/" + fname, ta.value);
-    win.dataset.filename = fname;
-    updateLabel();
-    refreshExplorerWindows && refreshExplorerWindows();
-    showInfo("Gespeichert: " + fname, {type:'success'});
-  }
-
-  function requestFilenameAndSave() {
+  function requestPathAndSave() {
     showFilenameDialog(win, {
-      title: "Dateiname speichern",
+      title: "Dateiname (Speicherort: C:/Dokumente)",
       value: "",
       onOk: (fname) => {
-        if (localStorage.getItem("textfiles/" + fname)) {
-          confirmOverwrite(win, fname, () => performSave(fname));
-        } else {
-          performSave(fname);
-        }
+        const base = "C:/Dokumente/";
+        performSave(base + fname);
       }
     });
   }
 
   function saveFile() {
-    let fname = win.dataset.filename;
-    if (!fname) {
-      requestFilenameAndSave();
+    let filePath = win.dataset.filePath;
+    if (!filePath || !filePath.includes(':/')) {
+      requestPathAndSave();
       return;
     }
-    // Existiert schon -> direkt überschreiben ohne Dialog
-    performSave(fname);
-  }
-
-  function trashFile() {
-    const fname = win.dataset.filename;
-    if (!fname) {
-      showInfo("Keine gespeicherte Datei.", {type:'warn'});
-      return;
-    }
-    showConfirm(win, `Datei '${fname}' in den Papierkorb verschieben?`, () => {
-      const ok = moveFileToTrash(fname);
-      if (ok) {
-        refreshExplorerWindows && refreshExplorerWindows();
-        refreshTrashWindows && refreshTrashWindows();
-        showInfo("Verschoben in Papierkorb: " + fname, {type:'info'});
-        win.remove();
-      } else {
-        showInfo("Fehler beim Verschieben.", {type:'error', timeout:5300});
-      }
-    });
+    performSave(filePath);
   }
 
   saveBtn && (saveBtn.onclick = saveFile);
-  delBtn  && (delBtn.onclick  = trashFile);
+  delBtn && (delBtn.onclick = () => showInfo("Löschen im neuen FS noch nicht implementiert",{type:'warn'}));
   updateLabel();
+  showInfo("Editor bereit", {type:'info', timeout:1200});
 }
 
-function openEditorWithContent(fname, content) {
-  const win = openWindow("editor-" + fname, "Editor");
-  win.dataset.filename = fname;
-  setTimeout(() => {
-    const ta = win.querySelector('#editor-text');
-    if (ta) ta.value = content || "";
-    const lbl = win.querySelector('.editor-filename-label');
-    if (lbl) lbl.textContent = fname;
-    const titleEl = win.querySelector('.window-title');
-    if (titleEl && titleEl.firstChild) titleEl.firstChild.textContent = 'Editor - ' + fname;
-  }, 30);
+function openEditorWithContent(fullPath, content) {
+  // fullPath z.B. "C:/Dokumente/test.txt" oder nur Dateiname (Fallback)
+  const win = openWindow('editor-'+Date.now(), 'Editor');
+  win.dataset.filePath = fullPath; // kompletter Pfad
+  const ta = win.querySelector('#editor-text');
+  if (ta) ta.value = content || '';
+  const lbl = win.querySelector('.editor-filename-label');
+  if (lbl) lbl.textContent = fullPath || '(neu)';
+  return win;
 }

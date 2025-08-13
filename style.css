@@ -176,9 +176,45 @@ html, body {
   padding: 10px 0 0 5px;
   min-height: 120px;
 }
+.explorer-toolbar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:linear-gradient(#f5f7fa,#e1e6eb);
+  border:1px solid #cfd6de;
+  padding:6px 10px;
+  margin:4px 0 10px;
+  border-radius:8px;
+  font-size:13px;
+}
+.explorer-path {
+  font-family:Consolas,monospace;
+  background:#fff;
+  padding:3px 8px;
+  border:1px solid #d5dce2;
+  border-radius:5px;
+  max-width:50%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.explorer-actions button {
+  background:#1976d2;
+  border:1px solid #1660ae;
+  color:#fff;
+  font-weight:600;
+  padding:4px 10px;
+  font-size:12px;
+  border-radius:5px;
+  cursor:pointer;
+  margin-left:4px;
+  transition:background .18s;
+}
+.explorer-actions button:hover { background:#155fa8; }
 
 .explorer-folder, .explorer-file {
-  width: 74px;
+  width: 77px;
   text-align: center;
   cursor: pointer;
   user-select: none;
