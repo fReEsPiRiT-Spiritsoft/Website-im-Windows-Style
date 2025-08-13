@@ -2,7 +2,7 @@
 function renderEditorView() {
   return `
     <textarea id="editor-text" class="editor-textarea"
-      style="width:100%;height:calc(100% - 120px);max-height:500px;">Hier kannst du Text bearbeiten!</textarea>
+      style="width:100%;height:calc(100% - 120px);max-height:500px;" placeholder="Hier kannst du Text bearbeiten!"></textarea>
       <div class="editor-toolbar">
       <button id="save-btn" class="btn btn-primary">💾 Speichern</button>
       <button id="delete-btn" class="btn btn-danger" title="Datei in den Papierkorb verschieben">🗑️ Löschen</button>

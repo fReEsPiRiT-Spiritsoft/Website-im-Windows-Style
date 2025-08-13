@@ -148,7 +148,9 @@ function getWindowContent(appName, explorerPath = "") {
   } else if (appName === "Browser") {
     return renderBrowserView("https://patrick-schmidt.info");
   } else if (appName === "Trash") {
-    return `<b>Papierkorb</b><br>${renderTrashView()}`; // Auf Funktion aus trash.js
+    return `<b>Papierkorb</b><br>${renderTrashView()}`;
+  } else if (appName === "Terminal") {
+    return renderTerminalView();
   } else {
     return "Noch keine App!";
   }
