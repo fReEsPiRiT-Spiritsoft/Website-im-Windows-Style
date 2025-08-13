@@ -116,6 +116,202 @@ html, body {
     .taskbar-time {
       font-variant-numeric: tabular-nums;
     }
+
+/*RESTART STYLE*/
+/* Restart Overlay & Modal */
+.restarting-blur #root {
+  filter: blur(6px) brightness(.85);
+  transition: filter .4s;
+}
+
+.restart-overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(10,16,24,.55);
+  backdrop-filter:blur(6px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:20000;
+  animation:fadeIn .25s;
+  font-family:"Segoe UI", sans-serif;
+  color:#fff;
+}
+
+.restart-modal {
+  background:#1f2a36;
+  border:1px solid #345;
+  border-radius:14px;
+  padding:24px 26px 20px;
+  width: clamp(300px, 40vw, 480px);
+  box-shadow:0 12px 36px -10px #000a;
+  animation:popInfo .28s;
+}
+
+.restart-modal h2 {
+  margin:0 0 10px;
+  font-size:20px;
+  font-weight:600;
+  color:#e5f2ff;
+}
+
+.restart-modal p {
+  margin:0 0 12px;
+  font-size:14px;
+  color:#c9d6e0;
+}
+
+.restart-info {
+  background:#263848;
+  border:1px solid #3b5568;
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:12.5px;
+  color:#d2e5f5;
+  margin-bottom:14px;
+  line-height:1.35;
+}
+
+.restart-info.hidden { display:none; }
+
+.restart-actions {
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+
+.restart-actions button {
+  background:#2f4d63;
+  border:1px solid #40657d;
+  color:#e0f4ff;
+  font-weight:600;
+  padding:8px 16px;
+  font-size:13px;
+  border-radius:7px;
+  cursor:pointer;
+  transition:background .18s, transform .12s;
+}
+
+.restart-actions button:hover {
+  background:#395e79;
+}
+
+.restart-actions .btn-confirm {
+  background:#1976d2;
+  border-color:#1662ae;
+}
+.restart-actions .btn-confirm:hover {
+  background:#155fa8;
+}
+.restart-actions .btn-cancel {
+  background:#45525c;
+  border-color:#56626c;
+}
+.restart-actions .btn-cancel:hover {
+  background:#54616b;
+}
+.restart-actions .btn-info {
+  background:#29485d;
+  border-color:#35627c;
+}
+.restart-actions .btn-info:hover {
+  background:#335b73;
+}
+
+/* Boot Screens */
+.boot-stage {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:22px;
+  width:100%;
+  height:100%;
+  font-family:Consolas,monospace;
+  text-align:center;
+  color:#d9f1ff;
+  padding:40px 30px;
+}
+
+.boot-bios {
+  background:#000;
+  animation:fadeIn .2s;
+}
+
+.bios-line {
+  font-size:22px;
+  letter-spacing:1px;
+  position:relative;
+  animation:blinkCursor 1s steps(2,start) infinite;
+}
+.bios-sub {
+  font-size:13px;
+  color:#6da9ff;
+}
+
+@keyframes blinkCursor {
+  0%,49% { text-shadow:0 0 4px #3af; }
+  50%,100% { color:#111; }
+}
+
+.boot-os {
+  background:linear-gradient(#0b1d2b,#0a1620 70%);
+  animation:fadeIn .4s;
+}
+
+.boot-logo {
+  font-size:48px;
+  filter:drop-shadow(0 0 8px #2faaff);
+  animation:pulseLogo 2.2s infinite;
+}
+
+@keyframes pulseLogo {
+  0%,100% { transform:scale(1); filter:drop-shadow(0 0 6px #2faaff); }
+  50% { transform:scale(1.06); filter:drop-shadow(0 0 14px #60c8ff); }
+}
+
+.boot-text {
+  font-size:15px;
+  font-family:"Segoe UI",sans-serif;
+  letter-spacing:.5px;
+  color:#cfe9ff;
+}
+
+.boot-spinner {
+  display:inline-grid;
+  grid-template-columns:repeat(6,10px);
+  gap:8px;
+}
+.boot-spinner div {
+  width:10px;
+  height:10px;
+  background:#1d8fe8;
+  border-radius:50%;
+  animation:spinnerDot 1.1s linear infinite;
+  box-shadow:0 0 8px #32a8ff;
+}
+.boot-spinner div:nth-child(2){ animation-delay:.15s;}
+.boot-spinner div:nth-child(3){ animation-delay:.30s;}
+.boot-spinner div:nth-child(4){ animation-delay:.45s;}
+.boot-spinner div:nth-child(5){ animation-delay:.60s;}
+.boot-spinner div:nth-child(6){ animation-delay:.75s;}
+
+@keyframes spinnerDot {
+  0%,100% { transform:scale(.35); opacity:.25; }
+  50% { transform:scale(1); opacity:1; }
+}
+
+/* Fallback animations */
+@keyframes fadeIn {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+@keyframes popInfo {
+  0% { transform:scale(.92); opacity:0; }
+  100% { transform:scale(1); opacity:1; }
+}
+
+
     /* Prevent selection for everything except window content */
     .desktop-icon, .window-title, .start-button {
       -webkit-user-select: none;

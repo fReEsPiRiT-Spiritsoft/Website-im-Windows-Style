@@ -176,6 +176,57 @@ function fs_readFile(tree, filePath) {
   return node.content;
 }
 
+// Programme-Ordner sicherstellen
+function fs_ensureProgrammeRoot(tree) {
+  const c = tree.drives['C:'];
+  if (!c.children['Programme']) {
+    c.children['Programme'] = { type:'dir', children:{} };
+    return true;
+  }
+  return false;
+}
+
+// Sync: Desktop-Icons -> Programme-Struktur
+function fs_syncPrograms(tree, programList) {
+  if (!Array.isArray(programList)) return {created:0, updated:0};
+  let changed = false;
+  fs_ensureProgrammeRoot(tree);
+  const progRoot = tree.drives['C:'].children['Programme'];
+  let created = 0;
+  programList.forEach(p => {
+    if (!p || !p.name) return;
+    const folderName = p.name; // z.B. "Editor"
+    if (!progRoot.children[folderName]) {
+      progRoot.children[folderName] = { type:'dir', children:{} };
+      changed = true;
+    }
+    const folder = progRoot.children[folderName];
+    if (folder.type !== 'dir') return;
+    // Launcher-Datei
+    if (!folder.children['launcher.app']) {
+      folder.children['launcher.app'] = {
+        type:'file',
+        content: JSON.stringify({ appId: p.id, name: p.name }, null, 2),
+        kind: 'launcher',
+        modified: fs_now()
+      };
+      created++;
+      changed = true;
+    }
+    // Info-Datei optional
+    if (!folder.children['info.txt']) {
+      folder.children['info.txt'] = {
+        type:'file',
+        content: `Programm: ${p.name}\nID: ${p.id}\nErzeugt: ${new Date().toLocaleString()}\n`,
+        modified: fs_now()
+      };
+      changed = true;
+    }
+  });
+  if (changed) fs_save(tree);
+  return {created, updated:0};
+}
+
 window.VFS = {
   load: fs_load,
   save: fs_save,
@@ -184,5 +235,6 @@ window.VFS = {
   writeFile: fs_writeFile,
   readFile: fs_readFile,
   getNode: fs_getNode,
-  normalize: fs_normalizePath
+  normalize: fs_normalizePath,
+  syncPrograms: fs_syncPrograms
 };

@@ -28,6 +28,15 @@ const icons = [
   }
 ];
 
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.VFS) {
+    const tree = VFS.load();
+    VFS.syncPrograms(tree, icons);
+    // Explorer-Fenster aktualisieren falls schon offen
+    if (typeof refreshExplorerWindows === 'function') refreshExplorerWindows();
+  }
+});
+
 // Hilfsfunktionen
 function $(sel, parent = document) { return parent.querySelector(sel); }
 function $all(sel, parent = document) { return parent.querySelectorAll(sel); }

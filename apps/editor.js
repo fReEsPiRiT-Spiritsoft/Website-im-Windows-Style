@@ -137,7 +137,7 @@ function initEditor(win) {
   saveBtn && (saveBtn.onclick = saveFile);
   delBtn && (delBtn.onclick = () => showInfo("Löschen im neuen FS noch nicht implementiert",{type:'warn'}));
   updateLabel();
-  showInfo("Editor bereit", {type:'info', timeout:1200});
+  // showInfo("Editor bereit", {type:'info', timeout:1200});
 }
 
 function openEditorWithContent(fullPath, content) {
