@@ -249,3 +249,67 @@ function forceHardReload() {
   }
 }
 
+// Kontextmenü-Logik
+let ctxTargetIcon = null;
+const ctxMenu = document.getElementById('desktop-contextmenu') || (() => {
+  const el = document.createElement('div');
+  el.id = 'desktop-contextmenu';
+  document.body.appendChild(el);
+  return el;
+})();
+
+document.addEventListener('click', () => {
+  ctxMenu.style.display = 'none';
+  ctxTargetIcon = null;
+});
+
+document.addEventListener('contextmenu', e => {
+  // Nur auf Desktop-Icons
+  const icon = e.target.closest('.desktop-icon');
+  if (!icon) return;
+  e.preventDefault();
+  ctxTargetIcon = icon;
+  const title = icon.querySelector('.icon-title')?.textContent;
+  const isFile = !icons.some(app => app.name === title);
+  ctxMenu.innerHTML = `
+    <div class="ctx-item" data-action="open">Öffnen</div>
+    ${isFile ? `<div class="ctx-item" data-action="delete">Löschen</div>` : ''}
+  `;
+  ctxMenu.style.left = e.pageX + 'px';
+  ctxMenu.style.top = e.pageY + 'px';
+  ctxMenu.style.display = 'block';
+});
+
+// Aktionen
+ctxMenu.onclick = async function(e) {
+  const item = e.target.closest('.ctx-item');
+  if (!item || !ctxTargetIcon) return;
+  const action = item.dataset.action;
+  const title = ctxTargetIcon.querySelector('.icon-title')?.textContent;
+  if (action === 'open') {
+    ctxTargetIcon.ondblclick();
+  }
+  if (action === 'delete') {
+    // Datei aus VFS löschen
+    if (window.VFS) {
+      const tree = await VFS.load();
+      const full = 'C:/Desktop/' + title;
+      const node = VFS.getNode(tree, full);
+      if (node && node.type === 'file') {
+        const parts = full.replace(/\\/g,'/').split('/');
+        const fname = parts.pop();
+        const parentPath = parts.join('/') + '/';
+        const parent = VFS.getNode(tree, parentPath);
+        if (parent && parent.children && parent.children[fname]) {
+          delete parent.children[fname];
+          await VFS.save(tree);
+          showInfo && showInfo(`Datei "${title}" gelöscht`, {type:'success'});
+          renderIcons();
+        }
+      }
+    }
+  }
+  ctxMenu.style.display = 'none';
+  ctxTargetIcon = null;
+};
+

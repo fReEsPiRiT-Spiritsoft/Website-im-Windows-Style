@@ -1,6 +1,6 @@
 
 
-function initExplorer(win, path="C:/") {
+function initExplorer(win, path = "C:/") {
   win.dataset.explorerPath = VFS.normalize(path || 'C:/');
   renderExplorerInto(win);
   setupExplorerEventsFS(win);
@@ -80,9 +80,9 @@ function setupExplorerEventsFS(win) {
           const tree = VFS.load();
           const res = VFS.mkdir(tree, currentPath, name);
           if (!res.ok) {
-            showInfo("Fehler: " + res.error, {type:'error'});
+            showInfo("Fehler: " + res.error, { type: 'error' });
           } else {
-            showInfo("Ordner erstellt", {type:'success'});
+            showInfo("Ordner erstellt", { type: 'success' });
             renderExplorerInto(win);
             setupExplorerEventsFS(win);
           }
@@ -116,7 +116,7 @@ function setupExplorerEventsFS(win) {
 
   function goUp() {
     if (currentPath === 'C:/') return;
-    const parts = currentPath.replace(/\\/g,'/').split('/');
+    const parts = currentPath.replace(/\\/g, '/').split('/');
     parts.pop(); // letzte (leer)
     parts.pop(); // Ordner
     let newPath = 'C:/';
@@ -134,6 +134,36 @@ function setupExplorerEventsFS(win) {
     renderExplorerInto(win);
     setupExplorerEventsFS(win);
   }
+  // --- Drag & Drop Upload ---
+  content.addEventListener('dragover', e => {
+    e.preventDefault();
+    content.classList.add('dragover');
+  });
+  content.addEventListener('dragleave', e => {
+    e.preventDefault();
+    content.classList.remove('dragover');
+  });
+  content.addEventListener('drop', async e => {
+    e.preventDefault();
+    content.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (!files || !files.length) return;
+    const tree = await VFS.load();
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        // Schreibe Datei ins aktuelle Verzeichnis
+        const path = currentPath + (currentPath.endsWith('/') ? '' : '/') + file.name;
+        VFS.writeFile(tree, path, evt.target.result);
+        VFS.save(tree);
+        showInfo(`Datei "${file.name}" hochgeladen`, { type: 'success' });
+        renderExplorerInto(win);
+        setupExplorerEventsFS(win);
+      };
+      reader.readAsText(file); // Für Textdateien, für Binärdaten ggf. readAsArrayBuffer
+    }
+  });
 }
 
 function refreshExplorerWindows() {
@@ -176,3 +206,67 @@ function moveFileToTrash(fname) {
 //   const data = VFS.readFile(tree, fullPath) ?? '';
 //   openEditorWithContent(fullPath, data);
 // };
+
+let ctxTargetFile = null;
+const explorerCtxMenu = document.getElementById('explorer-contextmenu') || (() => {
+  const el = document.createElement('div');
+  el.id = 'explorer-contextmenu';
+  document.body.appendChild(el);
+  return el;
+})();
+
+// Kontextmenü ausblenden bei Klick außerhalb
+document.addEventListener('click', () => {
+  explorerCtxMenu.style.display = 'none';
+  ctxTargetFile = null;
+});
+
+// Kontextmenü für Dateien im Explorer
+document.addEventListener('contextmenu', async e => {
+  const fileEl = e.target.closest('.explorer-file');
+  if (!fileEl) return;
+  e.preventDefault();
+  ctxTargetFile = fileEl;
+  const fname = fileEl.getAttribute('data-fname');
+  explorerCtxMenu.innerHTML = `
+    <div class="ctx-item" data-action="open">Öffnen</div>
+    <div class="ctx-item" data-action="delete">Löschen</div>
+  `;
+  explorerCtxMenu.style.left = e.pageX + 'px';
+  explorerCtxMenu.style.top = e.pageY + 'px';
+  explorerCtxMenu.style.display = 'block';
+});
+
+// Aktionen
+explorerCtxMenu.onclick = async function(e) {
+  const item = e.target.closest('.ctx-item');
+  if (!item || !ctxTargetFile) return;
+  const action = item.dataset.action;
+  const fname = ctxTargetFile.getAttribute('data-fname');
+  // Ermittle das aktuelle Verzeichnis
+  const win = ctxTargetFile.closest('.window[data-app="Explorer"]');
+  const currentPath = win?.dataset.explorerPath || 'C:/';
+  const fullPath = (currentPath.endsWith('/') ? currentPath : currentPath + '/') + fname;
+
+  if (action === 'open') {
+    ctxTargetFile.ondblclick && ctxTargetFile.ondblclick();
+  }
+  if (action === 'delete') {
+    if (window.VFS) {
+      const tree = await VFS.load();
+      const parts = fullPath.replace(/\\/g,'/').split('/');
+      const file = parts.pop();
+      const parentPath = parts.join('/') + '/';
+      const parent = VFS.getNode(tree, parentPath);
+      if (parent && parent.children && parent.children[file]) {
+        delete parent.children[file];
+        await VFS.save(tree);
+        showInfo && showInfo(`Datei "${fname}" gelöscht`, {type:'success'});
+        renderExplorerInto(win);
+        setupExplorerEventsFS(win);
+      }
+    }
+  }
+  explorerCtxMenu.style.display = 'none';
+  ctxTargetFile = null;
+};

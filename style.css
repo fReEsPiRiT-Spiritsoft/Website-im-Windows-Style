@@ -434,3 +434,45 @@ body,
   }
 
 }
+
+/* Kontextmenü */
+#desktop-contextmenu {
+  position: absolute;
+  z-index: 9999;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px #0002;
+  min-width: 140px;
+  display: none;
+  font-family: inherit;
+}
+#desktop-contextmenu .ctx-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+#desktop-contextmenu .ctx-item:hover {
+  background: #1976d2;
+  color: #fff;
+}
+#explorer-contextmenu {
+  position: absolute;
+  z-index: 9999;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px #0002;
+  min-width: 140px;
+  display: none;
+  font-family: inherit;
+}
+#explorer-contextmenu .ctx-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+#explorer-contextmenu .ctx-item:hover {
+  background: #1976d2;
+  color: #fff;
+}

@@ -79,3 +79,7 @@ button, .explorer-folder, .explorer-file, .start-menu-item, .window-close-btn {
   word-break: break-all;
   pointer-events: none;
 }
+.window[data-app="Explorer"] .window-content.dragover {
+  outline: 2px dashed #1976d2;
+  background: #e3f2fd;
+}
