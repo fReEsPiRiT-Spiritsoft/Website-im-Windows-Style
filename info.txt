@@ -1,8 +1,11 @@
-==================== WINDOWS-WEBSITE – VIRTUELLE DESKTOP UMGEBUNG======================
+==================== WINDOWS-WEBSITE – VIRTUELLE DESKTOP UMGEBUNG V 1.0 =====================
 
 ***** Bekannte BUGS *****
 
-Beim Handy öffnen sich die Programme nicht sofot,
+*nach updates der Seite muss man die "Neustarten" Funktion verwenden,
+damit die seite vollständig neu geladen wird
+
+*Beim Handy öffnen sich die Programme nicht sofot,
 sie starten erst nachdem man die Info.txt geöffnet hat
 
 *************************

@@ -9,6 +9,12 @@
   <link rel="stylesheet" href="./apps/explorer.css">
   <link rel="stylesheet" href="./apps/taskbar.css">
   <link rel="stylesheet" href="./apps/browser.css">
+  <link rel="stylesheet" href="./apps/snake.css">
+  <link rel="stylesheet" href="./apps/polo-app.css">
+  <link rel="stylesheet" href="./apps/impressum.css">
+  <link rel="stylesheet" href="./apps/settings.css">
+
+  <script src="apps/polo-app.js" defer></script>
   <script src="script.js" defer></script>
   <script src="./apps/browser.js" defer></script>
   <script src="./apps/editor.js" defer></script>
@@ -17,10 +23,14 @@
   <script src="./apps/taskbar.js" defer></script>
   <script src="./apps/terminal.js" defer></script>
   <script src="apps/filesystem.js" defer></script>
+  <script src="apps/snake.js" defer></script>
+  <script src="apps/impressum.js" defer></script>
+  <script src="apps/settings.js" defer></script>
+  <script src="db.js" defer></script>
   <title>Windows Desktop Demo</title>
 
 </head>
-<body>
+<body onload="forceHardReload()">
   <div id="root"></div>
 
 </body>

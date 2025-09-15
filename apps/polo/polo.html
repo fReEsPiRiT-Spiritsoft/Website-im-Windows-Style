@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Pollo Loco by P.Schmidt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rye&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="img/fav.ico">
+    <script src="models/audio-hub.class.js"></script>
+
+    <script src="models/drawable-object.class.js"></script>
+    <script src="models/moveable-object.class.js"></script>
+    <script src="models/background-object.class.js"></script>
+    <script src="models/status-bar.class.js"></script>
+    <script src="models/coin-status-bar.class.js"></script>
+    <script src="models/bottle-status-bar.class.js"></script>
+    <script src="models/character.class.js"></script>
+    <script src="models/chicken.class.js"></script>
+    <script src="models/miniChicken.class.js"></script>
+    <script src="models/endboss-statusbar.class.js"></script>
+    <script src="models/chickenEndboss.class.js"></script>
+    <script src="models/cloud.class.js"></script>
+    <script src="models/raindrops.class.js"></script>
+    <script src="models/keyboard.class.js"></script>
+    <script src="models/collisions-manager.class.js"></script>
+    <script src="models/world.class.js"></script>
+    <script src="models/handle-enemy-sounds.class.js"></script>
+    <script src="models/throwable-object.class.js"></script>
+    <script src="models/collectable-objects.class.js"></script>
+    <script src="models/collectable-bottle.class.js"></script>
+    <script src="models/collectable-coin.class.js"></script>
+    <script src="models/level.class.js"></script>
+    <script src="levels/level1.js"></script>
+    <script src="js/input-manager.js"></script>
+    <script src="js/game.js" defer></script>
+</head>
+
+<body onload="init()">
+    <div class="game" style="position:relative; width:720px; height:480px;">
+        <div id="startscreen">
+            <div class="difficulty-select">
+                <label for="difficulty">Schwierigkeit:</label>
+                <select id="difficulty">
+                    <option value="easy">Leicht</option>
+                    <option value="medium" selected>Mittel</option>
+                    <option value="hard">Schwer</option>
+                </select>
+            </div>
+            <button class="btn" id="btnControls" type="button" onclick="openControlsModal()">Info</button>
+            <img src="./img/9_intro_outro_screens/start/startscreen_1.png" class="start-image">
+            <button class="btn" id="btnPlay" onclick="startGame()">SPIEL</button>
+
+        </div>
+
+        <div id="endscreen" class="hidden">
+            <img src="img/win_lose/looser.png" class="end-image">
+            <button class="btn" onclick="goToMainMenu()">Hauptmenü</button>
+            <button class="btn" onclick="restartGame()">Neustart</button>
+        </div>
+        <div id="winningscreen" class="hidden">
+            <img src="img/win_lose/winner.png" class="end-image">
+            <div style="display: flex; gap: 24px; margin-top: 24px;">
+                <button class="btn" onclick="goToMainMenu()">Hauptmenu</button>
+                <button class="btn" onclick="restartGame()">Neustart</button>
+            </div>
+        </div>
+
+        <div id="rotateNotice">
+            <img src="img/1_controls/rotate.png" alt="Rotate your phone">
+        </div>
+
+        <canvas id="canvas" width="720" height="480" tabindex="0"></canvas>
+        
+        <div id="touchControls" class="touch-controls hidden">
+            <div class=" direction">
+                <button class="touch-btn" id="btnLeft"><img src="img/1_controls/arrow-left.png" alt="Left"></button>
+                <button class="touch-btn" id="btnRight"><img src="img/1_controls/arrow-right.png" alt="Right"></button>
+            </div>
+            <div class="throwNjump">
+                <button class="touch-btn" id="btnJump"><img src="img/1_controls/jump.png" alt="Jump"></button>
+                <button class="touch-btn" id="btnThrow"><img src="img/1_controls/throwbottle.png" alt="Throw"></button>
+            </div>
+        </div>
+        
+        <div id="controlsModal" class="modal hidden">
+            <div class="modal-content">
+                <button class="btn impressum2" onclick="openImpressumModal()">Impressum</button>
+                <span class="close-btn" onclick="closeControlsModal()">&times;</span>
+                <h2>Tastenbelegung</h2>
+                <ul>
+                    <li><b>Pfeil rechts:</b> Nach rechts laufen</li>
+                    <li><b>Pfeil links:</b> Nach links laufen</li>
+                    <li><b>Leertaste:</b> Springen</li>
+                    <li><b>D:</b> Flasche werfen</li>
+                    <li><b>H:</b> Show Hitboxes (DEBUG)</li>
+                </ul>
+                <h2>Spielprinzip
+
+                    Du bist Pepe, ein kleiner, runder Mexikaner mit mehr Mut als Kondition.
+                    Deine Aufgabe: Renne durch die Spielwelt, weiche Hühnern aus und überlebe das gefiederte Chaos.
+                    <br>
+                    <br>
+                    Aber Achtung:
+                    <br>
+                    <br>
+                    Hühner sind schneller, als sie aussehen – lass dich nicht erwischen!
+                    <br>
+                    <br>
+                    Küken sind nicht süß, sondern kleine Bio-Bomben geh ihnen lieber aus dem Weg.
+                    <br>
+                    <br>
+                    Am Ende wartet Mama Henne, die Oberbossin im Federkleid. Nur wenn du sie besiegst, bist du der Held
+                    – und kannst den ultimativen Titel tragen:
+                    „Geflügelbezwinger des Jahres“!
+                </h2>
+
+            </div>
+        </div>
+        <div id="impressumModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeImpressumModal()">&times;</span>
+                <h2>Impressum</h2>
+                <h1>Impressum</h1>
+                <p>Angaben gemäß § 5 DDG</p>
+                <p>Patrick Schmidt<br>
+                    <br>
+                    Brüggerweg 7<br>
+                    59964 Medebach <br>
+                </p>
+                <p> <strong>Vertreten durch: </strong><br>
+                    Patrick Schmidt<br>
+                </p>
+                <p><strong>Kontakt:</strong> <br>
+                    Telefon: +49 / 017685937800<br>
+                    E-Mail: <a href='mailto:kontakt@patrick-schmidt.info'>kontakt@patrick-schmidt.info</a></br></p><br>
+                Impressum von <a href="https://websitewissen.com" rel="dofollow">WebsiteWissen.com</a>, dem Ratgeber für
+                <a href="https://websitewissen.com/wordpress-website-erstellen" rel="dofollow">WordPress-Websites</a>,
+                <a href="https://websitewissen.com/wordpress-hosting-vergleich" rel="dofollow">WordPress-Hosting</a> und
+                <a href="https://websitewissen.com/website-kosten" rel="dofollow">Website-Kosten</a> nach einem Muster
+                von <a href="https://www.kanzlei-hasselbach.de/" rel="dofollow">Kanzlei Hasselbach Rechtsanwälte</a>.
+
+
+            </div>
+        </div>
+
+        <button id="menuToggle" class="btn menu-toggle" type="button" onclick="toggleMenu()">Menu</button>
+
+        <div class="ui" id="ui">
+            <button class="btn" onclick="goToMainMenu()">Hauptmenu</button>
+            <button class="btn" id="btnRestart" onclick="restartGame()">Neustart</button>
+            <button class="btn" id="btnFullscreen" onclick="toggleFullscreen()">Vollbild</button>
+            <button class="btn" id="btnMute" onclick="toggleMute()">Stumm</button>
+        </div>
+    </div>
+    <button class="btn impressum" onclick="openImpressumModal()">Impressum</button>
+    </div>
+</body>
+
+</html>

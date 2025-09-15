@@ -1,0 +1,33 @@
+.settings-tabs {
+  display: flex;
+  border-bottom: 1px solid #cfd6de;
+  margin-bottom: 12px;
+  gap: 2px;
+}
+.settings-tab {
+  background: #f3f6fb;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  padding: 8px 22px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #1976d2;
+  font-weight: 500;
+  outline: none;
+  transition: background 0.15s;
+}
+.settings-tab.active {
+  background: #fff;
+  color: #1976d2;
+  border-bottom: 2px solid #1976d2;
+}
+.settings-content {
+  padding: 10px 2px 2px 2px;
+}
+.settings-panel {
+  animation: fadeIn .2s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: none;}
+}

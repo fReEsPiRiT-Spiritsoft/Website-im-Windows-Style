@@ -228,21 +228,6 @@ function fs_syncPrograms(tree, programList) {
   return {created, updated:0};
 }
 
-function fs_ensureInfoFile(tree) {
-  fs_ensureFolder(tree, 'C:/Desktop');
-  const desktop = fs_getNode(tree, 'C:/Desktop');
-  if (!desktop || desktop.type !== 'dir') return false;
-  if (!desktop.children['INFO.txt']) {
-    desktop.children['INFO.txt'] = {
-      type:'file',
-      content: `INFO / KURZANLEITUNG\n\nWillkommen!\nDies ist deine Mini-Windows-Umgebung.\nDiese Datei liegt auf dem virtuellen Desktop (C:/Desktop).\n- Explorer: Dateien ansehen\n- Editor: Texte bearbeiten\n- Terminal: Basis-Kommandos\n- Neustart: LocalStorage Reset\n\nViel Spaß!\n`,
-      modified: fs_now()
-    };
-    fs_save(tree);
-    return true;
-  }
-  return false;
-}
 function fs_ensureFolder(tree, path) {
   path = fs_normalizePath(path);
   const { drive, parts } = fs_split(path);
@@ -340,5 +325,4 @@ window.VFS = {
   getNode: fs_getNode,
   normalize: fs_normalizePath,
   syncPrograms: fs_syncPrograms,
-  ensureInfoFile: fs_ensureInfoFile
 };

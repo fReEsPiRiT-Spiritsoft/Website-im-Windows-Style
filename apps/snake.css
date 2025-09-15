@@ -1,0 +1,42 @@
+.snake-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center; 
+  justify-content: center;  
+  height: 100%;           
+}
+.window[data-app="Snake"] .window-content {
+  background-image: url('../apps/assets/snake.jpg');
+  background-size: cover;
+  background-position: center;
+}
+#snake-canvas {
+  background:#111;
+  border:2px solid #2f4452;
+  border-radius:8px;
+  image-rendering:pixelated;
+}
+.snake-ui {
+  display:flex;
+  gap:14px;
+  align-items:center;
+  font-size:24px;
+  font-family:"Segoe UI",sans-serif;
+}
+#snake-restart {
+  background:#1976d2;
+  border:1px solid #145fa9;
+  color:#fff;
+  padding:6px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:13px;
+}
+#snake-restart:hover { background:#155fa8; }
+
+.snake-mode-btn.active {
+  background: #1976d2;
+  color: #fff;
+}

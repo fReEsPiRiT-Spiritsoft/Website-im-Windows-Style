@@ -1,0 +1,90 @@
+.window[data-app="El Polo Loco"] {
+  min-width: 400px;
+  min-height: 320px;
+  width: 80% !important;
+  height: 80% !important;
+}
+
+@media (max-width: 600px) {
+  .window[data-app="El Polo Loco"] {
+    min-width: 280px;
+    min-height: 260px;
+  }
+}
+
+.window[data-app="El Polo Loco"] .window-content,
+.window[data-app="El Polo Loco"] .polo-wrapper {
+  /* display: flex;
+  flex-direction: column; */
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  margin: -9px;
+}
+
+.window[data-app="El Polo Loco"] .polo-bar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  background: linear-gradient(#222, #191919);
+  border-bottom: 1px solid #2c2c2c;
+}
+
+.polo-btn {
+  background: linear-gradient(180deg, #f3f6fa 0%, #e2e8f0 100%);
+  border: 1px solid #b4c2d1;
+  color: #1a2330;
+  padding: 7px 18px;
+  border-radius: 7px;
+  font-weight: 500;
+  font-size: 15px;
+  font-family: "Segoe UI", "Arial", sans-serif;
+  box-shadow: 0 1px 2px #0001;
+  transition: 
+    background 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s,
+    color 0.18s,
+    transform 0.12s;
+  cursor: pointer;
+  outline: none;
+  margin-right: 6px;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+
+.polo-btn:hover, .polo-btn:focus {
+  background: linear-gradient(180deg, #eaf2fb 0%, #d2e0f2 100%);
+  border-color: #1976d2;
+  color: #1976d2;
+  box-shadow: 0 2px 8px #1976d220;
+}
+
+.polo-btn:active {
+  background: linear-gradient(180deg, #dbe6f7 0%, #c2d4e6 100%);
+  border-color: #145fa9;
+  color: #145fa9;
+  box-shadow: 0 1px 2px #1976d210;
+  transform: translateY(1px) scale(0.98);
+}
+
+
+.window[data-app="El Polo Loco"] .polo-frame-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.window[data-app="El Polo Loco"] .polo-frame {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid #2d3e4c;
+  border-radius: 6px;
+  background: #000;
+  display: block;
+  position: absolute;
+}

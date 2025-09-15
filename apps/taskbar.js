@@ -1,4 +1,4 @@
-// ...existing code...
+
 renderTaskbar();
 function renderTaskbar() {
   const bar = document.createElement('div');
@@ -132,16 +132,11 @@ function startRestartSequence(overlay) {
 }
 
 function rebuildDesktopEnvironment() {
-  // Root leeren außer Taskbar/Overlay falls vorhanden
   const root = document.getElementById('root');
   if (!root) return;
-  // Entferne alle Fenster
   root.querySelectorAll('.window').forEach(w => w.remove());
-  // Entferne alte Desktop-Icons
   root.querySelectorAll('.desktop-icons').forEach(d => d.remove());
-  // Neu rendern
   if (typeof renderIcons === 'function') renderIcons();
-  // Explorer Fenster aktualisieren (falls auto)
   if (typeof refreshExplorerWindows === 'function') refreshExplorerWindows();
 }
 
@@ -161,4 +156,6 @@ function playStartupSound() {
     o.stop(ctx.currentTime + 1.2);
   } catch {}
 }
-// ...existing code...
+
+
+window.showRestartConfirm = showRestartConfirm;

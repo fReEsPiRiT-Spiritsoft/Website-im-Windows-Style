@@ -1,36 +1,24 @@
+const bg = localStorage.getItem('desktopBg');
+if (bg) {
+  document.body.style.background = `url('${bg}') center/cover no-repeat fixed`;
+}
 const icons = [
-  {
-    id: 1,
-    name: "Explorer",
-    icon: "🗂️"
-  },
-  {
-    id: 2,
-    name: "Editor",
-    icon: "📝"
-  },
-  {
-    id: 3,
-    name: "Browser",
-    icon: "🌐"
-  },
-  {
-    id: 4,
-    name: "Terminal",
-    icon: "💻"
-  },
-  {
-    id: 5,
-    name: "Trash",
-    icon: "🗑️"
-  }
+  { id: 1, name: "Explorer", icon: "🗂️" },
+  { id: 2, name: "Editor", icon: "📝" },
+  { id: 3, name: "Browser", icon: "🌐" },
+  { id: 4, name: "Terminal", icon: "💻" },
+  { id: 5, name: "Trash", icon: "🗑️" },
+  { id: 6, name: "Snake", icon: "🐍", category: "Games" },
+  { id: 7, name: "El Polo Loco", icon: "🐔", category: "Games" },
+  { id: 7, name: "Settings", icon: "⚙️" },
+  { id: 8, name: "Impressum", icon: "ℹ️" }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
   if (window.VFS) {
     const tree = VFS.load();
     VFS.syncPrograms(tree, icons);
-  VFS.ensureInfoFile(tree);
+    VFS.ensureInfoFile(tree);
     if (typeof refreshExplorerWindows === 'function') refreshExplorerWindows();
   }
 });
@@ -49,8 +37,8 @@ function makeDraggable(win, titleBar) {
   let offsetX = 0, offsetY = 0;
   let longPressTimer = null;
   let startPX = 0, startPY = 0;
-  const LONG_PRESS_MS = 420; 
-  const MOVE_TOL = 8; 
+  const LONG_PRESS_MS = 420;
+  const MOVE_TOL = 8;
   titleBar.style.touchAction = "none";
 
   function startDrag(x, y) {
@@ -65,7 +53,7 @@ function makeDraggable(win, titleBar) {
     const maxX = window.innerWidth - win.offsetWidth;
     const maxY = window.innerHeight - win.offsetHeight - 38;
     win.style.left = Math.max(0, Math.min(x - offsetX, maxX)) + 'px';
-    win.style.top  = Math.max(0, Math.min(y - offsetY, maxY)) + 'px';
+    win.style.top = Math.max(0, Math.min(y - offsetY, maxY)) + 'px';
   }
   function endDrag() {
     isDragging = false;
@@ -101,7 +89,7 @@ function makeDraggable(win, titleBar) {
     if (isDragging) moveDrag(e.clientX, e.clientY);
   });
 
-  ['pointerup','pointercancel','pointerleave'].forEach(ev => {
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => {
     document.addEventListener(ev, () => {
       clearLongPress();
       if (isDragging) endDrag();
@@ -145,10 +133,14 @@ function makeScaleAble(win) {
 
 function getWindowContent(appName, explorerPath = "") {
   if (appName === "Explorer") return `<b>Explorer</b><br>${renderExplorerView(explorerPath || "C:/")}`;
-  if (appName === "Editor")   return renderEditorView();
-  if (appName === "Browser")  return renderBrowserView("https://patrick-schmidt.info");
-  if (appName === "Trash")    return `<b>Papierkorb</b><br>${renderTrashView()}`;
+  if (appName === "Editor") return renderEditorView();
+  if (appName === "Browser") return renderBrowserView("https://patrick-schmidt.info");
+  if (appName === "Trash") return `<b>Papierkorb</b><br>${renderTrashView()}`;
   if (appName === "Terminal") return renderTerminalView();
+  if (appName === "Snake") return renderSnakeView();
+  if (appName === "El Polo Loco") return renderPoloView();
+  if (appName === "Settings") return renderSettingsView();
+  if (appName === "Impressum") return renderImpressumView();
   return "Noch keine App!";
 }
 
@@ -156,7 +148,7 @@ function openWindow(appId, appName, explorerPath = "") {
   const win = document.createElement('div');
   win.className = 'window';
   win.dataset.winid = appId;
-  win.dataset.app = appName; 
+  win.dataset.app = appName;
   win.innerHTML = `
     <div class="window-title">
       ${appName}
@@ -164,30 +156,41 @@ function openWindow(appId, appName, explorerPath = "") {
     </div>
     <div class="window-content">${getWindowContent(appName, explorerPath)}</div>
   `;
+
+  // Feste Startposition: Immer oben links mit 20px Abstand
+  win.style.left = '20px';
+  win.style.top = '20px';
+  win.style.height = '50%';
+  win.style.width = '50%';
+
   makeDraggable(win, win.querySelector('.window-title'));
   makeScaleAble(win);
   $('#root').appendChild(win);
   window.openCount++;
   win.querySelector('.window-close-btn').onclick = () => win.remove();
+
   switch (appName) {
     case "Explorer": initExplorer(win, explorerPath); break;
-    case "Editor":   initEditor(win); break;
-    case "Browser":  initBrowser(win); break;
-    case "Trash":    initTrash(win); break;
+    case "Editor": initEditor(win); break;
+    case "Browser": initBrowser(win); break;
+    case "Trash": initTrash(win); break;
     case "Terminal": initTerminal(win); break;
+    case "Snake": initSnake(win); break;
+    case "Settings": initSettings(win); break;
+    case "Impressum": initImpressum(win); break;
   }
   return win;
 }
 
+
+
+
 function renderIcons() {
-  // Vorhandenes Icon-Container entfernen
   const old = document.querySelector('.desktop-icons');
   if (old) old.remove();
 
   const container = document.createElement('div');
   container.className = 'desktop-icons';
-
-  // 1) Feste App-Icons
   icons.forEach(app => {
     const el = document.createElement('div');
     el.className = 'desktop-icon';
@@ -195,12 +198,10 @@ function renderIcons() {
     el.ondblclick = () => openWindow(app.id, app.name);
     container.appendChild(el);
   });
-
-  // 2) Dateien aus C:/Desktop
   try {
     if (window.VFS) {
       const tree = VFS.load();
-      VFS.ensureInfoFile && VFS.ensureInfoFile(tree); // INFO.txt sicherstellen
+      VFS.ensureInfoFile && VFS.ensureInfoFile(tree);
       const list = VFS.list(tree, 'C:/Desktop')
         .filter(e => e.type === 'file');
 
@@ -208,8 +209,8 @@ function renderIcons() {
         const el = document.createElement('div');
         el.className = 'desktop-icon';
         const icon = f.name.toLowerCase().endsWith('.txt') ? '📄'
-                   : f.name.toLowerCase().endsWith('.js')  ? '🧩'
-                   : '📄';
+          : f.name.toLowerCase().endsWith('.js') ? '🧩'
+            : '📄';
         el.innerHTML = `<div class="icon-img">${icon}</div><div class="icon-title">${f.name}</div>`;
         el.ondblclick = () => {
           const full = 'C:/Desktop/' + f.name;
@@ -219,7 +220,7 @@ function renderIcons() {
         container.appendChild(el);
       });
     }
-  } catch(e) {
+  } catch (e) {
     console.warn('Desktop-Dateien Fehler:', e);
   }
 
@@ -239,3 +240,12 @@ window.zCounter = 10;
 window.openCount = 0;
 $('#root').innerHTML = "";
 renderIcons();
+
+
+function forceHardReload() {
+  if (!window.location.search.includes('nocache')) {
+    const sep = window.location.search ? '&' : '?';
+    window.location.replace(window.location.href + sep + 'nocache=' + Date.now());
+  }
+}
+
